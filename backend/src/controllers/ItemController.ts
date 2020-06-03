@@ -9,7 +9,7 @@ export default {
       return {
         id: item.id,
         titulo: item.titulo,
-        img_url: `http://localhost:3000/uploads/${item.img}`,
+        img_url: `http://localhost:3333/uploads/${item.img}`,
       };
     });
 
