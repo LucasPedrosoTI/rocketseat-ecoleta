@@ -3,16 +3,22 @@ import knex from "../database/connection";
 
 export default {
   index: async (req: Request, res: Response) => {
-    const { cidade, uf, items } = req.query;
+    let { cidade, uf, items } = req.query;
+
+    items = items || "1,2,3,4,5,6";
 
     const parsedItems = String(items)
       .split(",")
       .map((item) => Number(item.trim()));
 
+    console.log(parsedItems);
+    console.log(uf);
+    console.log(cidade);
+
     const pontos = await knex("pontos")
       .join("ponto_items", "pontos.id", "=", "ponto_items.pt_id")
       .whereIn("ponto_items.it_id", parsedItems)
-      .where("cidade", String(cidade))
+      .where("cidade", String(cidade).trim())
       .where("uf", String(uf))
       .distinct()
       .select("pontos.*");
