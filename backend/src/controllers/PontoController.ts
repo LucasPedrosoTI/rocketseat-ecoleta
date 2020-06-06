@@ -23,7 +23,14 @@ export default {
       .distinct()
       .select("pontos.*");
 
-    return res.json(pontos);
+    const serializedPoints = pontos.map((ponto) => {
+      return {
+        ...ponto,
+        img_url: `http://192.168.1.101:3333/uploads/${ponto.img}`,
+      };
+    });
+
+    return res.json(serializedPoints);
   },
   show: async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -34,12 +41,17 @@ export default {
       return res.status(400).json({ msg: "Point not found" });
     }
 
+    const serializedPoint = {
+      ...ponto,
+      img_url: `http://192.168.1.101:3333/uploads/${ponto.img}`,
+    };
+
     const items = await knex("items")
       .join("ponto_items", "items.id", "=", "ponto_items.it_id")
       .where("ponto_items.pt_id", id)
       .select("items.titulo");
 
-    return res.json({ ponto, items });
+    return res.json({ ponto: serializedPoint, items });
   },
   create: async (req: Request, res: Response) => {
     const {
@@ -56,8 +68,7 @@ export default {
     const trx = await knex.transaction();
 
     const point = {
-      img:
-        "https://images.unsplash.com/photo-1556767576-5ec41e3239ea?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
+      img: req.file.filename,
       nome,
       email,
       whatsapp,
@@ -69,12 +80,15 @@ export default {
 
     const [pt_id] = await trx("pontos").insert(point);
 
-    const pointItems = items.map((it_id: number) => {
-      return {
-        it_id,
-        pt_id,
-      };
-    });
+    const pointItems = items
+      .split(",")
+      .map((item: string) => Number(item.trim()))
+      .map((it_id: number) => {
+        return {
+          it_id,
+          pt_id,
+        };
+      });
 
     await trx("ponto_items").insert(pointItems);
 

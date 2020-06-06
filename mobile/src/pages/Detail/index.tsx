@@ -21,6 +21,7 @@ interface Params {
 interface Data {
   ponto: {
     img: string;
+    img_url: string;
     nome: string;
     whastapp: string;
     email: string;
@@ -76,7 +77,7 @@ const Detail = () => {
         <Image
           style={styles.pointImage}
           source={{
-            uri: data.ponto.img,
+            uri: data.ponto.img_url,
           }}
         />
 

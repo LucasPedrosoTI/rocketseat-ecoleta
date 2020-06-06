@@ -6,6 +6,8 @@ import { LeafletMouseEvent } from "leaflet";
 import api from "../../services/api";
 import axios from "axios";
 
+import Dropzone from "../../components/Dropzone";
+
 import "./CreatePoint.css";
 
 import logo from "../../assets/logo.svg";
@@ -42,6 +44,7 @@ const CreatePoint = () => {
     0,
   ]);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File>();
 
   const [initialPosition, setInitialPosition] = useState<[number, number]>([
     0,
@@ -132,16 +135,20 @@ const CreatePoint = () => {
     const [latitude, longitude] = selectedPosition;
     const items = selectedItems;
 
-    const data = {
-      nome,
-      email,
-      whatsapp,
-      uf,
-      cidade,
-      latitude,
-      longitude,
-      items,
-    };
+    const data = new FormData();
+
+    data.append("nome", nome);
+    data.append("email", email);
+    data.append("whatsapp", whatsapp);
+    data.append("uf", uf);
+    data.append("cidade", cidade);
+    data.append("latitude", String(latitude));
+    data.append("longitude", String(longitude));
+    data.append("items", items.join(","));
+
+    if (selectedFile) {
+      data.append("img", selectedFile);
+    }
 
     await api.post("pontos", data);
 
@@ -165,6 +172,8 @@ const CreatePoint = () => {
           Cadastro do <br />
           ponto de coleta
         </h1>
+
+        <Dropzone onFileUploaded={setSelectedFile} />
 
         <fieldset>
           <legend>
