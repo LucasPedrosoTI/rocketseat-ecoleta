@@ -14,4 +14,5 @@ app.use("/uploads", express.static(path.resolve(__dirname, "uploads")));
 app.use(errors());
 
 app.use("/", router);
+
 export default app;
